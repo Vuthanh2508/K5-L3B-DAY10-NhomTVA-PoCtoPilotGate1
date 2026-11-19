@@ -48,12 +48,12 @@ trợ lý có đang gây thiệt hại cho bên ngoài LogiX không; không có 
 
 | | Offline, cho MỘT bước (câu 1.3) | Telemetry production (câu 1.4) |
 |---|---|---|
-| **Bước / hành vi được đo** | | |
-| **Thước đo** (một câu, có đơn vị) | | |
-| **Dữ liệu** (lấy ở đâu, bao nhiêu, ai gán nhãn) | | |
-| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | | |
+| **Bước / hành vi được đo** | Ghi lỗi cho hãng vận chuyển (`file_carrier_fault`) | |
+| **Thước đo** (một câu, có đơn vị) | Tỉ lệ ghi lỗi sai hãng vận chuyển (đơn vị: %) | |
+| **Dữ liệu** (lấy ở đâu, bao nhiêu, ai gán nhãn) | Sự kiện `file_carrier_fault` trong `runs/<mã lần chạy>/traces/` (22 ticket × 5 seed của bộ nền). Nhãn chuẩn (ground-truth) lấy từ kiện hàng trễ nhất trong database `data/world.json` (`orders[].parcels`). | |
+| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | Số lần gán sai hãng chia cho tổng số lần gọi `file_carrier_fault`. Ca không có sự kiện phạt hãng thì loại khỏi mẫu số và đếm riêng. | |
 | **Khung thời gian / ngưỡng báo động** | (không áp dụng) | |
-| **Điểm mù** (thước đo này KHÔNG thấy gì) | | |
+| **Điểm mù** (thước đo này KHÔNG thấy gì) | Không phát hiện được ca đáng phạt nhưng agent bỏ sót (False Negative), và không thấy trường hợp dữ liệu tracking DB bị sai từ đầu. | |
 
 **Ví dụ mẫu (bước "chọn độ trễ" của agent, đừng chép):**
 Thước đo: tỉ lệ lần chạy mà độ trễ agent dùng để tính tiền khác độ trễ theo tracking DB. Dữ liệu: sự kiện `proposal.delay_days_used`
