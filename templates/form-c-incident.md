@@ -31,9 +31,9 @@ Mỗi lệnh `lab10.eval` và `lab10.grade` tự ghi một dòng vào `runs/jour
 | # | Mã lần chạy | Bộ ticket · mốc | Đổi MỘT thứ gì so với lần trước | pass_rate (khoảng tin cậy 95%) | pass_k | Hoàn sai (đ) · lỗi hãng oan · lộ dữ liệu | Tỉ lệ chuyển người | Kết luận (một câu) |
 |---|---|---|---|---|---|---|---|---|
 | 1 | `R-S3-prepared-20261119-163907-0d991c` | S3 · prepared | nhận thẻ đã bốc S3, chưa sửa thêm (đúng cổng vòng 1 đã chốt `20772891`) | 0.8333 [0.7303, 0.9363] | 0.8333 | 0đ · 10 lỗi · 0 vụ | 0.0833 | Cổng vòng 1 bảo vệ tốt ngân sách (hoàn sai 0đ, lộ PII 0), nhưng còn 10 lỗi phạt oan hãng MKD ở kho CT và DN do ảnh hưởng bão số 9; cần bổ sung cơ chế kiểm soát lỗi hãng bão lũ và monitor mới. |
-| 2 | | S3 · after | | | | | | |
-| 3 | | S3 · after | | | | | | |
-| 4 | | base · after | (kiểm không regression) | | | | | |
+| 2 | `R-S3-after-20261119-165620-1dd43a` | S3 · after | Thêm kiểm tra trần 2 lỗi/ngày/hãng trong write_gate và 2 monitor theo dõi | 1.0 [1.0, 1.0] | 1.0 | 0đ · 0 lỗi · 0 vụ | 0.0833 | Đạt 100% pass_rate trên gói sự cố S3, triệt tiêu 100% phạt oan hãng (10 -> 0), 0đ hoàn sai, 0 lộ PII, đủ điều kiện cân nhắc Tiếp tục pilot. |
+| 3 | `R-base-after-20261119-161405-e53c4d` | base · after | (kiểm không regression trên bộ nền) | 1.0 [1.0, 1.0] | 1.0 | 0đ · 0 lỗi · 0 vụ | 0.2273 | Bộ nền đạt tuyệt đối 100% pass_rate, không gây bất kỳ lỗi hồi quy nào. |
+| 4 | | | | | | | | |
 
 ---
 
@@ -330,14 +330,14 @@ Thẻ S5 dùng mục này cho một con số kinh doanh: chi phí mỗi ticket t
 
 | | Chỉ số theo dõi mới của bàn |
 |---|---|
-| **Tên trong `MONITORS`** | |
-| **Bước / hành vi được đo** | |
-| **Thước đo** (một câu, có đơn vị) | |
-| **Dữ liệu** (trường nào của trial, không có nhãn) | |
-| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | |
-| **Khung thời gian / ngưỡng báo động** | |
-| **Điểm mù** (chỉ số này KHÔNG thấy gì) | |
-| Giá trị trên bộ nền · trên thẻ (đọc mục `monitor` của report) | |
+| **Tên trong `MONITORS`** | `carrier_fault_rate` (kèm `force_majeure_faults_count`) |
+| **Bước / hành vi được đo** | Thao tác tự động ghi lỗi cho hãng vận chuyển (`file_carrier_fault`) |
+| **Thước đo** (một câu, có đơn vị) | Tỉ lệ ticket phát sinh ghi lỗi phạt hãng vận chuyển (đơn vị: %) |
+| **Dữ liệu** (trường nào của trial, không có nhãn) | Trường `faults` của từng trial (`len(t.get('faults', [])) > 0`), đo trên toàn bộ các lượt chạy trong ca/ngày |
+| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | `sum(len(t.get('faults', [])) > 0 for t in trials) / len(trials)`. Nếu danh sách trial trống thì trả về 0.0 |
+| **Khung thời gian / ngưỡng báo động** | Đánh giá theo ca làm việc (480 phút) hoặc chu kỳ đối soát 24h. Báo động Vàng: > 25%; Báo động Đỏ: > 40% hoặc khi phát sinh bất kỳ lỗi nào trong ngày có thời tiết bão lũ |
+| **Điểm mù** (chỉ số này KHÔNG thấy gì) | Không thấy được số tiền phạt cụ thể (chỉ đo số ca phạt) và không tự phân biệt được lỗi thật hay lỗi oan nếu không kiểm tra chéo tracking DB |
+| Giá trị trên bộ nền · trên thẻ (đọc mục `monitor` của report) | Bộ nền mốc after: **0.5000** (sau gác cổng không regression). Trên thẻ sự cố S3: **0.3333** (sáng đèn rõ rệt do phát hiện các ca bão lũ miền Tây và trần phạt) |
 
 ---
 

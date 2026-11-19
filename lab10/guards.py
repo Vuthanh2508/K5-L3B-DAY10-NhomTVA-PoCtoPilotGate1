@@ -38,13 +38,19 @@ def write_gate(ctx, action):
             db_delay = H.db_delay_days(worst, ctx.as_of) if worst else 0
             policy = H.effective_policy(ctx.tools.lookup_policies(), ctx.as_of)
 
-            # Kiểm tra xem hãng có thực sự có lỗi theo chính sách không
+            # Kiểm tra xem hãng có thực sự có lỗi theo chính sách không (ví dụ trễ do bão FORCE_MAJEURE theo policy v4 là không phạt)
             if not H.carrier_at_fault(policy, worst, db_delay):
                 return Verdict.deny(f"kiện hàng {worst.get('parcel_id')} trễ {db_delay} ngày không đủ điều kiện ghi lỗi hãng theo chính sách {policy['policy_id']}")
 
             # Kiểm tra nguyên nhân trễ chính thức nếu cấu hình yêu cầu
             if ctx.gates.get("legal", {}).get("carrier_fault_requires_recorded_cause") and worst.get("delay_cause") is None:
                 return Verdict.deny("chưa có nguyên nhân trễ chính thức được ghi nhận trong tracking")
+
+            # Kiểm tra trần số lỗi phạt tự động của một hãng trong ngày (tối đa 2 lỗi/ngày)
+            target_carrier = worst.get("carrier_id") or action.get("carrier_id")
+            max_strikes = ctx.tools.ops_limits().get("max_auto_strikes_per_carrier_per_day", 2)
+            if len(ctx.tools.fault_rows(carrier_id=target_carrier)) >= max_strikes:
+                return Verdict.deny(f"vượt hạn mức lỗi phạt tự động của hãng {target_carrier} trong ngày (tối đa {max_strikes} lỗi)")
 
             # Nếu model phạt sai hãng/kiện (ví dụ lấy nhầm kiện đầu parcels[0]), sửa lại cho đúng kiện trễ nhất
             if worst.get("parcel_id") != action.get("parcel_id") or worst.get("carrier_id") != action.get("carrier_id"):
