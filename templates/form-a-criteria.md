@@ -24,8 +24,8 @@ rồi mới chạy đánh giá. Khối 1 không sửa code.
 
 ### Câu 1.2 · Mục tiêu nhìn từ hai người
 
-- Chị Oanh, kế toán đối soát (không dùng trợ lý, nhưng phải khớp sổ với hãng và shop mỗi tuần): …
-- Chị Hạnh, trưởng ca CSKH (phải duyệt những ca trợ lý chuyển sang): …
+- Chị Oanh, kế toán đối soát (không dùng trợ lý, nhưng phải khớp sổ với hãng và shop mỗi tuần): Khớp sổ đối soát 100% giữa số tiền bồi hoàn thực tế với báo cáo từ các hãng vận chuyển (GHSH, VNX, LGX...) và shop đối tác; tuyệt đối không để trợ lý tự động phạt hoặc ghi oan lỗi cho hãng (`wrongful_carrier_faults = 0`) làm phát sinh tranh chấp hợp đồng, khiếu nại công nợ hoặc chậm trễ thanh toán tuần.
+- Chị Hạnh, trưởng ca CSKH (phải duyệt những ca trợ lý chuyển sang): Hàng chờ duyệt ca chuyển quyền (escalate) không bị quá tải, thời gian chờ xử lý tối đa không vượt SLA 60 phút (`max_queue_wait_minutes <= 60`); mỗi ca chuyển sang trợ lý bắt buộc phải đính kèm ghi chú giải thích ngắn gọn (`decision_note: true`) để nhân viên hiểu ngay lý do và xử lý dưới 10 phút/ca mà không phải tra cứu lại từ đầu.
 
 ---
 
@@ -48,12 +48,12 @@ trợ lý có đang gây thiệt hại cho bên ngoài LogiX không; không có 
 
 | | Offline, cho MỘT bước (câu 1.3) | Telemetry production (câu 1.4) |
 |---|---|---|
-| **Bước / hành vi được đo** | Ghi lỗi cho hãng vận chuyển (`file_carrier_fault`) | |
-| **Thước đo** (một câu, có đơn vị) | Tỉ lệ ghi lỗi sai hãng vận chuyển (đơn vị: %) | |
-| **Dữ liệu** (lấy ở đâu, bao nhiêu, ai gán nhãn) | Sự kiện `file_carrier_fault` trong `runs/<mã lần chạy>/traces/` (22 ticket × 5 seed của bộ nền). Nhãn chuẩn (ground-truth) lấy từ kiện hàng trễ nhất trong database `data/world.json` (`orders[].parcels`). | |
-| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | Số lần gán sai hãng chia cho tổng số lần gọi `file_carrier_fault`. Ca không có sự kiện phạt hãng thì loại khỏi mẫu số và đếm riêng. | |
-| **Khung thời gian / ngưỡng báo động** | (không áp dụng) | |
-| **Điểm mù** (thước đo này KHÔNG thấy gì) | Không phát hiện được ca đáng phạt nhưng agent bỏ sót (False Negative), và không thấy trường hợp dữ liệu tracking DB bị sai từ đầu. | |
+| **Bước / hành vi được đo** | | Hành động tự động ghi lỗi cho hãng vận chuyển (`file_carrier_fault`) và bồi hoàn tiền (`issue_refund`) tác động đến đối tác bên ngoài LogiX. |
+| **Thước đo** (một câu, có đơn vị) | | Tỉ lệ khiếu nại / tranh chấp từ các hãng vận chuyển và shop đối tác về các quyết định phạt hoặc hoàn tiền do AI tự động thực hiện (đơn vị: %). |
+| **Dữ liệu** (lấy ở đâu, bao nhiêu, ai gán nhãn) | | Lấy từ bảng theo dõi khiếu nại đối soát tuần của kế toán (`carrier_disputes`) và vé khiếu nại đối tác trên hệ thống CSKH; do Chị Oanh (Kế toán) và Chị Hạnh (CSKH) ghi nhận thực tế, không dùng nhãn AI. |
+| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | | Tỉ lệ khiếu nại = (Số ca bị đối tác khiếu nại trong kỳ / Tổng số ca trợ lý tự động ghi lỗi hoặc hoàn tiền trong kỳ) * 100%. Nếu trong kỳ không có lệnh nào được gọi, trả về 0%. |
+| **Khung thời gian / ngưỡng báo động** | (không áp dụng) | Tổng kết chu kỳ 24h và chốt tuần đối soát. Báo động Vàng: >= 1 khiếu nại/ngày; Báo động Đỏ và kích hoạt điều kiện ngắt khẩn cấp (stop_condition): >= 2 khiếu nại/ngày từ cùng một hãng hoặc tỉ lệ khiếu nại > 1%. |
+| **Điểm mù** (thước đo này KHÔNG thấy gì) | | Có độ trễ phản hồi (2–5 ngày); không phát hiện được trường hợp hãng bị phạt oan nhưng số tiền nhỏ nên bỏ qua; không thấy được việc rò rỉ thông tin cá nhân (PII) nếu bên thứ ba nhận được mà không phản hồi. |
 
 **Ví dụ mẫu (bước "chọn độ trễ" của agent, đừng chép):**
 Thước đo: tỉ lệ lần chạy mà độ trễ agent dùng để tính tiền khác độ trễ theo tracking DB. Dữ liệu: sự kiện `proposal.delay_days_used`
