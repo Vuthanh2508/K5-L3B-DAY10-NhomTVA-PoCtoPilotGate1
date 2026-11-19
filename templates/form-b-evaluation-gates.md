@@ -329,12 +329,12 @@ Phần 1–3 và mục Giờ cao điểm viết ở vòng 1. Phần 4–5 viết
 
 | Vai | Tên / mã nhân viên (lấy từ `data/world.json` → `staff`) | Được quyền làm gì | Liên lạc qua kênh nào |
 |---|---|---|---|
-| PIC của trợ lý (một người) | `NV-TUNG` (Nguyễn Văn Tùng - Ops Supervisor) | Giám sát vận hành trợ lý, nhận cảnh báo ngưỡng và quyết định điều động nhân sự hỗ trợ | `#ops-logix-alerts` |
+| PIC của trợ lý (một người) | `NV-TUNG` (Lê Thanh Tùng - Giám sát vận hành) | Giám sát vận hành trợ lý, nhận cảnh báo ngưỡng, giữ công tắc tắt và quyết định điều động nhân sự hỗ trợ | `#ops-logix-alerts` |
 | Người duyệt đứng tên các khoản vượt hạn mức | `NV-HANH` (Trần Thị Hạnh - Trưởng ca CSKH) | Phê duyệt thẩm quyền các khoản hoàn tiền lớn vượt hạn mức và xử lý ticket chuyển quyền | `#cskh-approvals` |
-| Người giữ công tắc tắt từng thao tác ghi | `Đỗ Việt Anh` (Kỹ sư cổng) | Bật/tắt công tắc trong `switches.json` và cập nhật cổng code khẩn cấp trong `guards.py` | `#dev-incident` |
-| Người nhận khiếu nại của bên thứ ba (hãng, shop, người nhận quà) | `NV-OANH` (Lê Thị Oanh - Kế toán trưởng) | Tiếp nhận phản ánh, đối soát công nợ tuần và xử lý khiếu nại tranh chấp đối tác | `#finance-reconcile` |
+| Người giữ công tắc tắt từng thao tác ghi | `Đỗ Việt Anh` (Kỹ sư cổng) / `NV-TUNG` (Giám sát vận hành) | Bật/tắt công tắc trong `switches.json` và cập nhật cổng code khẩn cấp trong `guards.py` | `#dev-incident` / `#ops-logix-alerts` |
+| Người nhận khiếu nại của bên thứ ba (hãng, shop, người nhận quà) | `NV-OANH` (Phạm Kiều Oanh - Kế toán đối soát) | Tiếp nhận phản ánh, đối soát công nợ tuần và xử lý khiếu nại tranh chấp đối tác | `#finance-reconcile` |
 
-Số người trực duyệt mỗi ca: 1 người · Mỗi giờ duyệt được: 6 ca (đạt 15 ca khi có `decision_note`) · Phạm vi pilot: tất cả (100%)
+Số người trực duyệt mỗi ca: 1 người (khớp `operations.reviewers_on_shift: 1`) · Mỗi giờ duyệt được: 6 ca (khớp `operations.review_capacity_per_hour: 6`, đạt tới 15 ca khi có `decision_note: true`) · Thời gian chờ tối đa: 60 phút (khớp `operations.max_queue_wait_minutes: 60`) · Phạm vi pilot: tất cả (100%)
 
 #### Runbook 2 · Nhìn con số nào, ngưỡng nào thì làm gì
 
@@ -342,7 +342,7 @@ Mỗi dòng một tín hiệu. Cột "Lấy ở đâu" phải là một dòng tr
 
 | Tín hiệu | Lấy ở đâu | Bình thường | Ngưỡng VÀNG → việc làm | Ngưỡng ĐỎ → việc làm | Ai quyết |
 |---|---|---|---|---|---|
-| Thời gian chờ người duyệt lâu nhất | Khối vận hành `lâu nhất X phút` (SLA 60') | $\le 15$ phút | $> 30$ phút $\rightarrow$ nhắc nhân viên trực tăng tốc, ưu tiên xử lý vé có `decision_note` | $> 60$ phút (vỡ SLA) $\rightarrow$ điều động thêm 1 người trực hỗ trợ ca | `NV-HANH` |
+| Thời gian chờ người duyệt lâu nhất | Khối vận hành `lâu nhất X phút` (SLA 60') | $\le 15$ phút | $> 30$ phút $\rightarrow$ nhắc nhân viên trực tăng tốc, ưu tiên xử lý vé có `decision_note` | $> 60$ phút (vỡ SLA `max_queue_wait_minutes`) $\rightarrow$ điều động thêm 1 người trực hỗ trợ ca | `NV-HANH` |
 | Số ca bị ùn | Khối vận hành `X ca bị ùn` | 0 ca | $\ge 1$ ca $\rightarrow$ kiểm tra ca bị kẹt trong review queue | $\ge 3$ ca $\rightarrow$ kích hoạt chế độ trực khẩn cấp | `NV-HANH` |
 | Chi phí mỗi ticket so với làm tay | Khối kinh doanh `chi phí mỗi ticket` | $\le 5.000$đ | $> 7.000$đ $\rightarrow$ rà soát các ca tốn nhiều token LLM | $\ge 10.000$đ $\rightarrow$ thu hẹp pilot về kho chuẩn | `Vũ Thành` |
 | Tổng tiền hoàn tự động trong ngày so với trần | Khối kinh doanh `tổng hoàn tự động` (trần 2M) | $\le 1.200.000$đ | $\ge 1.800.000$đ (90%) $\rightarrow$ thông báo Kế toán chuẩn bị đối soát | $\ge 2.000.000$đ $\rightarrow$ tự động ngắt hoàn tiền, chuyển toàn bộ sang duyệt tay | `NV-OANH` |
@@ -352,15 +352,22 @@ Mỗi dòng một tín hiệu. Cột "Lấy ở đâu" phải là một dòng tr
 
 #### Runbook 3 · Điều kiện dừng và cách dừng
 
-- Dừng một phần (tắt một thao tác ghi, thu hẹp phạm vi) khi: Phát sinh $\ge 1$ lỗi ghi oan hãng vận chuyển hoặc khi tổng tiền hoàn tự động trong ngày chạm trần 2.000.000 VNĐ.
-- Dừng hẳn khi: Xảy ra rò rỉ dữ liệu PII ($\ge 1$ vụ), hoặc phát sinh khiếu nại tranh chấp đối tác ở mức Báo động Đỏ ($\ge 2$ khiếu nại/ngày từ cùng một hãng hoặc tỉ lệ tranh chấp $> 1\%$).
+- Dừng một phần (tắt một thao tác ghi, thu hẹp phạm vi) khi:
+  - Khi có 1 lỗi ghi oan cho hãng vận chuyển: tắt `file_carrier_fault` (`"file_carrier_fault": "off"`).
+  - Khi tổng tiền hoàn tự động trong ngày chạm trần 2.000.000 VNĐ: tắt `issue_refund` (`"issue_refund": "off"`).
+  - Khi chi phí mỗi ticket vượt trần 7.000đ hoặc hàng chờ ùn: thu hẹp pilot về kho Hà Nội (`warehouses: ["HN"]`).
+- Dừng hẳn khi:
+  - Khi xảy ra $\ge 1$ vụ rò rỉ dữ liệu cá nhân PII: dừng toàn bộ trợ lý.
+  - Khi telemetry production chạm Báo động Đỏ: từ 2 khiếu nại/ngày từ cùng một hãng hoặc tỉ lệ tranh chấp đối tác > 1%: dừng toàn bộ trợ lý.
+  - Khi tiền hoàn sai vượt 50.000 VNĐ: dừng toàn bộ trợ lý.
 - Cách dừng, từng bước:
   1. Đổi `"file_carrier_fault": "off"` hoặc `"issue_refund": "off"` trong `config/switches.json`.
   2. Nếu cần thu hẹp phạm vi: sửa `"mode": "warehouse", "warehouses": ["HN"]` trong `config/operating_gates.json`.
-  3. Gửi thông báo khẩn cấp lên kênh Slack `#ops-logix-alerts`.
-- Từ tín hiệu đỏ đến lúc dừng xong tối đa: `5 phút`; người bấm: `Đỗ Việt Anh` hoặc `NV-TUNG`.
+  3. Nếu dừng toàn bộ: tắt tất cả công tắc trong `config/switches.json`.
+  4. Gửi thông báo khẩn cấp lên kênh Slack `#ops-logix-alerts` (khớp `operations.alert_channel`).
+- Từ tín hiệu đỏ đến lúc dừng xong tối đa: `5 phút`; người bấm: `Đỗ Việt Anh` (Kỹ sư cổng) hoặc `NV-TUNG` (Giám sát vận hành - PIC).
 - Khi đã dừng, ticket đang chờ đi đâu, ai xử lý: Tự động định tuyến toàn bộ ticket đang chờ về hàng đợi duyệt thủ công của ca trực CSKH do Chị Hạnh (`NV-HANH`) phụ trách.
-- Điều kiện để bật lại, ai ký: Đã vá lỗi và kiểm chứng bằng test hồi quy đạt 100% không còn lỗi; ký duyệt bởi: `Vũ Thành (Product Lead)` và `NV-HANH (CSKH Lead)`.
+- Điều kiện để bật lại, ai ký: Đã vá lỗi và kiểm chứng bằng test hồi quy đạt 100% không còn lỗi; ký duyệt bởi: `Vũ Thành` (Product Lead), `NV-HANH` (CSKH Lead) và `Vũ Huy Hiệu` (Vận hành & Pháp lý).
 
 ### B7.6 · Giờ cao điểm (bắt buộc với thẻ S4; các thẻ khác nên có)
 
@@ -368,11 +375,11 @@ Lượng ticket có thể dồn gấp ba trong một giờ (ngày sale, sau bão
 
 | Câu hỏi | Trả lời (có số, có tên) |
 |---|---|
-| Giờ cao điểm là khi nào, bao nhiêu ticket mỗi giờ (dựa vào `ops_facts`)? | Khung giờ 11h–13h và 20h–22h các ngày Sale lớn (11.11, 12.12); lượng ticket tăng gấp ba lên khoảng 15–20 ticket/giờ. |
-| Ai trực giờ cao điểm, mấy người (khớp `operations.reviewers_on_shift`)? | `NV-HANH` trực chính (1 người trực ca thông thường, công suất đạt 15 ca/giờ nhờ có `decision_note: true`). |
-| Ngưỡng nào thì **gọi thêm người** (hàng chờ bao nhiêu ca, chờ lâu nhất bao nhiêu phút)? Ai gọi? | Hàng chờ $\ge 8$ ca hoặc thời gian chờ $\ge 35$ phút $\rightarrow$ gọi thêm `NV-TUNG` vào cùng duyệt. Người gọi: `NV-HANH`. |
-| Ngưỡng nào thì **thu hẹp** phạm vi (khoá `business.pilot_scope`) hoặc **tắt** một thao tác ghi (`config/switches.json`)? Ai quyết? | Hàng chờ $\ge 15$ ca hoặc chi phí vé vượt 7.000đ $\rightarrow$ thu hẹp về kho HN (`warehouses: ["HN"]`). Quyết định bởi: `Vũ Thành`. |
-| Thêm người thì chi phí mỗi ticket và ROI thay đổi thế nào (đọc report)? | Thêm 1 người tốn standby fee 30.000đ/ca (`ops_facts`). Với lượng ticket cao của giờ cao điểm, chi phí mỗi vé chỉ tăng nhẹ ~500đ nhưng đảm bảo SLA dưới 60 phút, ROI duy trì $> 1.0$. |
+| Giờ cao điểm là khi nào, bao nhiêu ticket mỗi giờ (dựa vào `ops_facts`)? | Khung giờ 11h–13h và 20h–22h các ngày Sale lớn (11.11, 12.12); lượng ticket tăng gấp ba lên khoảng 18–20 ticket/giờ (bình thường ~6 ticket/giờ). |
+| Ai trực giờ cao điểm, mấy người (khớp `operations.reviewers_on_shift`)? | `NV-HANH` trực chính (1 người trực ca thông thường khớp `operations.reviewers_on_shift: 1`, công suất cam kết đạt 6 ca/giờ khớp `operations.review_capacity_per_hour: 6`, thực tế xử lý đạt tới 15 ca/giờ khi có `decision_note: true`). |
+| Ngưỡng nào thì **gọi thêm người** (hàng chờ bao nhiêu ca, chờ lâu nhất bao nhiêu phút)? Ai gọi? | Hàng chờ $\ge 8$ ca hoặc thời gian chờ lâu nhất $\ge 35$ phút (tiệm cận SLA 60 phút ở `operations.max_queue_wait_minutes`) $\rightarrow$ gọi thêm `NV-TUNG` vào cùng duyệt. Người gọi: `NV-HANH`. |
+| Ngưỡng nào thì **thu hẹp** phạm vi (khoá `business.pilot_scope`) hoặc **tắt** một thao tác ghi (`config/switches.json`)? Ai quyết? | Hàng chờ $\ge 15$ ca hoặc chi phí vé vượt 7.000đ $\rightarrow$ thu hẹp về kho HN (`warehouses: ["HN"]`) hoặc tắt thao tác `issue_refund`. Quyết định bởi: `Vũ Thành`. |
+| Thêm người thì chi phí mỗi ticket và ROI thay đổi thế nào (đọc report)? | Thêm 1 người tốn standby fee 30.000đ/ca (`ops_facts.reviewer_standby_fee_vnd`). Với lượng ticket cao của giờ cao điểm, chi phí mỗi vé chỉ tăng nhẹ ~500đ nhưng đảm bảo SLA dưới `max_queue_wait_minutes: 60`, 0 ca bị ùn, ROI duy trì $> 1.0$ (vượt xa ngưỡng `business.roi_min: 0.2`). |
 
 ---
 

@@ -14,13 +14,13 @@
     "pic": "NV-TUNG",
     "approver_id": "NV-HANH",
     "reviewers_on_shift": 1,
-    "review_capacity_per_hour": null,
+    "review_capacity_per_hour": 6,
     "max_queue_wait_minutes": 60,
     "stop_conditions": [
-      "Khi tổng số tiền hoàn sai vượt quá 0 VNĐ trên bất kỳ bộ thử nào",
-      "Khi số lỗi ghi oan cho hãng vận chuyển vượt quá 0 lỗi",
-      "Khi xảy ra rò rỉ dữ liệu cá nhân PII vượt quá 0 vụ",
-      "Khi telemetry production chạm Báo động Đỏ: từ 2 khiếu nại/ngày từ cùng một hãng hoặc tỉ lệ tranh chấp đối tác > 1%"
+      "Khi có 1 lỗi ghi oan cho hãng vận chuyển thì tắt file_carrier_fault",
+      "Khi tổng tiền hoàn tự động trong ngày chạm trần 2.000.000 VNĐ thì tắt issue_refund",
+      "Khi xảy ra 1 vụ rò rỉ dữ liệu cá nhân PII thì dừng toàn bộ trợ lý",
+      "Khi telemetry chạm Báo động Đỏ (từ 2 khiếu nại/ngày từ cùng một hãng hoặc tỉ lệ tranh chấp đối tác > 1%) thì dừng toàn bộ trợ lý"
     ],
     "alert_channel": "#ops-logix-alerts",
     "decision_note": true,
@@ -30,7 +30,8 @@
     "pii_fields_blocked_to_third_party": [
       "phone",
       "customer_name",
-      "address"
+      "address",
+      "recipient_contact"
     ],
     "carrier_fault_requires_recorded_cause": true
   }
