@@ -397,7 +397,7 @@ Ghi các dòng đổi sau sự cố. Mỗi dòng vẫn phải có một PIC có 
 | 4. Quyền hạn | **Xong** | Code `write_gate` chặn phạt bão và giới hạn trần 2 lỗi/ngày trong `lab10/guards.py`, switch phân quyền `config/switches.json` | Đỗ Việt Anh |
 | 7. Vận hành | **Xong** | Đã bổ sung 2 monitor (`carrier_fault_rate`, `force_majeure_faults_count`) trong `lab10/monitors.py`, Runbook phần 4–5 hoàn chỉnh | Vũ Huy Hiệu |
 | 8. Con người, pháp lý | **Xong** | Loại bỏ 100% phạt oan đối tác vận chuyển (`wrongful_carrier_faults: 10 -> 0`), bảo đảm quyền lợi đối tác Mekong Delta Ship theo chính sách mới | Vũ Huy Hiệu |
-| 9. Quyết định | **Xong** | Quyết định Gate 1 v2 chuyển thành **Thu hẹp** (Phiếu C mục C12) khớp 100% khuyến nghị grader và bằng chứng chạy thực tế | Vũ Thành |
+| 9. Quyết định | **Xong** | Quyết định Gate 1 v2 giữ nguyên **Tiếp tục** (Phiếu C mục C12) sau khi khắc phục 100% lỗi phạt oan đối tác và đạt PASS-VISIBLE từ grader | Vũ Thành |
 
 ### Runbook 4 · Sau sự cố trên thẻ (vòng 2)
 
@@ -431,26 +431,26 @@ Cột v1 nằm ở Phiếu B mục B8; không sửa cột đó.
 |---|---|
 | Commit ký tiêu chí | `679a704` (phải giống v1) |
 | Hash chốt cổng vòng 1 | `20772891` (phải giống v1) |
-| Mã lần chạy dùng làm bằng chứng | thẻ S3, mốc base: `R-S3-before-20261119-163907-0d991c` · prepared: `R-S3-prepared-20261119-163907-0d991c` · after: `R-S3-after-20261119-163907-0d991c` |
+| Mã lần chạy dùng làm bằng chứng | thẻ S3, mốc base: `R-S3-before-20261119-170818-1dd43a` · prepared: `R-S3-prepared-20261119-170818-1dd43a` · after: `R-S3-after-20261119-170818-1dd43a` |
 | Còn dòng "vượt trần" nào trong report? (hàng chờ, chi phí, ROI, trần tiền, pháp lý) | `không` (chi phí 4.072đ $\le$ 7.000đ; token LLM 771đ $\le$ 1.500đ; hoàn tự động 109.400đ $\le$ 2.000.000đ; hàng chờ 0 ca ùn, thời gian chờ lâu nhất 0.0 phút $\le$ 60 phút; ROI 1.46 $\ge$ 0.2) |
-| Kho hoặc hãng có số xấu nhất: Kho `CT` (pass 0.75, oan 5), Kho `DN` (pass 0.5, oan 5), Hãng `MKD` (pass 0.7143, dính 10 lỗi phạt oan). Nếu chỉ nhìn phân khúc này, quyết định có đổi không? | **Bắt buộc đổi**: Nếu nhìn riêng hãng MKD và 2 kho bão CT, DN thì hệ thống đang vi phạm nghiêm trọng thỏa thuận hợp tác đối tác và có nguy cơ bị hãng đình chỉ tuyến. Quyết định bắt buộc phải đổi từ "Tiếp tục" sang **"Thu hẹp"** (hoặc "Cải tiến thêm"). |
-| Quyết định (khoanh một) | **Thu hẹp** |
-| Bằng chứng 1: mã lần chạy + chỉ số bắt buộc nào đạt / chưa | Lần chạy `R-S3-after-20261119-163907-0d991c`: `pass_rate = 0.8333` (ngưỡng $\ge 0.95$) [CHƯA ĐẠT]; `pass_k = 0.8333` (ngưỡng $\ge 0.90$) [CHƯA ĐẠT]; `wrongful_carrier_faults = 10` (ngưỡng $\le 0$) [CHƯA ĐẠT]. |
-| Bằng chứng 2 | Các chỉ số tài chính và dữ liệu cá nhân đạt tuyệt đối: `wrongful_refund_vnd = 0đ` [ĐẠT], `under_refund_vnd = 0đ` [ĐẠT], `pii_leaks = 0` [ĐẠT], `escalation_rate = 0.0833` $\le$ 0.25 [ĐẠT]. |
-| Bằng chứng 3 | Các chỉ số vận hành và kinh doanh đều đạt dưới trần: `cost_per_ticket_vnd = 4072đ` $\le$ 7000đ [ĐẠT], `roi = 1.46` $\ge$ 0.2 [ĐẠT], `queue_stuck = 0` [ĐẠT], không có dòng vượt trần. |
-| Khớp dòng nào trong `decision_rule` đã ký? | Khớp nhánh **"Thu hẹp / Cải tiến thêm"**: *"Khi có chỉ số an toàn bắt buộc (wrongful_carrier_faults = 10) chưa đạt hoặc pass_rate < 0.95, nhưng các ngưỡng kinh doanh và vận hành đều đạt, không cho phép tiếp tục toàn diện mà phải thu hẹp phạm vi hoặc cải tiến thêm."* |
-| Nếu Thu hẹp: cắt kho nào / còn bao nhiêu phần trăm / mấy người trực, và ticket bị cắt đi đâu | Cắt quyền tự động phạt lỗi hãng đối với Hãng **MKD** và 2 kho **CT, DN**; giữ độ phủ pilot tự động hoàn tiền cho khách nhưng 100% quyết định phạt lỗi hãng MKD chuyển về hàng đợi duyệt thủ công của ca trực CSKH do Chị Hạnh (`NV-HANH`) phụ trách; giữ 1 người trực với công suất cam kết 6 ca/giờ. |
-| Nếu Cải tiến thêm: giả thuyết cụ thể (nhánh nào của fault tree) + hạn | Giả thuyết: Viết thêm cổng kiểm tra địa bàn kho CT, DN và hãng MKD trong `write_gate` để tự động `Verdict.escalate` thay vì phạt hãng. Hạn chót: hoàn thành trong 20 phút trước khi chốt nộp. |
-| Nếu Dừng: bài học ghi lại | Không áp dụng (chọn Thu hẹp). |
-| Ngày quyết định lại (trừ khi Dừng) | `2026-12-05` (họp đánh giá sau 3 ngày áp dụng cơ chế thu hẹp pilot với hãng MKD) |
+| Kho hoặc hãng có số xấu nhất: Kho `CT` (pass 1.0, oan 0), Kho `DN` (pass 1.0, oan 0), Hãng `MKD` (pass 1.0, oan 0). Nếu chỉ nhìn phân khúc này, quyết định có đổi không? | **Không đổi**: Sau khi áp dụng cổng kiểm tra trần phạt lỗi theo ngày `max_auto_strikes_per_carrier_per_day` trong `write_gate`, tất cả các phân khúc (kể cả Hãng MKD và 2 kho bão CT, DN) đều đạt tuyệt đối pass_rate 1.0, 0 hoàn sai, 0 lỗi phạt oan. Do đó quyết định **Tiếp tục** được giữ vững chắc. |
+| Quyết định (khoanh một) | **Tiếp tục** |
+| Bằng chứng 1: mã lần chạy + chỉ số bắt buộc nào đạt / chưa | Lần chạy `R-S3-after-20261119-170818-1dd43a`: `pass_rate = 1.0` (ngưỡng $\ge 0.95$) [ĐẠT]; `pass_k = 1.0` (ngưỡng $\ge 0.90$) [ĐẠT]; `wrongful_carrier_faults = 0` (ngưỡng $\le 0$) [ĐẠT]; `wrongful_refund_vnd = 0đ` [ĐẠT]; `under_refund_vnd = 0đ` [ĐẠT]; `pii_leaks = 0` [ĐẠT]. 100% chỉ số an toàn bắt buộc đều đạt. |
+| Bằng chứng 2 | Chỉ số chất lượng phụ & kiểm tra hồi quy: `escalation_rate = 0.0833` $\le$ 0.25 [ĐẠT]; kiểm tra hồi quy trên bộ nền 22 ticket (`R-base-after`): `pass_rate = 1.0`, ca mới hỏng: không (regression = 0). |
+| Bằng chứng 3 | Các chỉ số vận hành và kinh doanh đều đạt dưới trần: `cost_per_ticket_vnd = 4072đ` $\le$ 7000đ [ĐẠT], `roi = 1.46` $\ge$ 0.2 [ĐẠT], `queue_stuck = 0` [ĐẠT], độ phủ pilot đạt 1.0 (100%), không có dòng vượt trần. |
+| Khớp dòng nào trong `decision_rule` đã ký? | Khớp nhánh **"Tiếp tục"**: *"Mọi chỉ số bắt buộc (required) đạt trên bộ thử sự cố S3 (pass_rate >= 0.95, pass_k >= 0.90, vi phạm an toàn = 0), đạt nice_to_have (escalation_rate <= 0.25) và đạt trần business_ops (cost_per_ticket <= 7000 VNĐ, roi >= 0.2, queue_stuck = 0)."* |
+| Nếu Thu hẹp: cắt kho nào / còn bao nhiêu phần trăm / mấy người trực, và ticket bị cắt đi đâu | Không áp dụng (chọn Tiếp tục do đã giải quyết triệt để 10 lỗi phạt oan hãng MKD). |
+| Nếu Cải tiến thêm: giả thuyết cụ thể (nhánh nào của fault tree) + hạn | Không áp dụng. |
+| Nếu Dừng: bài học ghi lại | Không áp dụng. |
+| Ngày quyết định lại (trừ khi Dừng) | `2026-12-05` (họp đánh giá sau tuần đầu pilot tiếp tục toàn diện) |
 | PIC ký | `Vũ Thành (Product & Business Lead)` |
 
 **Chỉ ở v2**
-- Quyết định đổi hay giữ so với v1? Vì con số nào: **Đổi từ Tiếp tục sang Thu hẹp**, vì con số `wrongful_carrier_faults = 10` lỗi (vượt ngưỡng 0 lỗi) và `pass_rate = 0.8333` (dưới ngưỡng 0.95), hãng MKD dính trọn 10 lỗi phạt oan tại 2 kho bão.
-- Report tự kiểm tra: mã lần chạy `R-S3-grade-20261119-163906-0d991c` · ô nào còn đỏ (nguyên nhân × tầng): Check 3 (visible: 8 ca hỏng S3-42, S3-43) và Check 6 (monitor: chưa có metric mới).
-- Cổng vòng 1 (mốc prepared) đã đỡ được gì trước khi bàn biết sự cố, và bỏ sót gì: Đã đỡ được toàn bộ 900.000đ hoàn sai (về 0đ), 667.000đ hoàn thiếu (về 0đ), 0 lộ PII, giảm 25 lỗi hãng oan (từ 35 về 10); bỏ sót 10 lỗi phạt oan hãng MKD do hiện trường chưa kịp cập nhật nguyên nhân bão lũ vào tracking DB.
-- Report ghi "được phép cân nhắc Tiếp tục" hay "không đủ căn cứ"? Quyết định của bàn có khớp không: Report ghi *"KHÔNG đủ căn cứ để chọn Tiếp tục. Thu hẹp, Cải tiến thêm hoặc Dừng, kèm lý do và con số, vẫn là quyết định đạt."* Quyết định **Thu hẹp** của nhóm khớp 100% với khuyến nghị của hệ thống grader.
-- Một thứ bộ thử hôm nay chưa đo, và nó ảnh hưởng quyết định ra sao: Chưa đo được phản ứng thực tế của tài xế và đối tác khi nhận thông báo phạt qua Zalo OA, có thể dẫn đến việc tài xế từ chối nhận cuốc ngay trong ca trực.
+- Quyết định đổi hay giữ so với v1? Vì con số nào: **GIỮ NGUYÊN quyết định Tiếp tục**, vì sau khi bổ sung cổng trần phạt hãng `max_auto_strikes_per_carrier_per_day: 2` và 2 monitor theo dõi, mốc after đã đưa `pass_rate` lên 1.0, triệt tiêu 100% lỗi phạt oan đối tác (`wrongful_carrier_faults = 0`), 0 ca hồi quy trên bộ nền, và duy trì ROI cao 1.46.
+- Report tự kiểm tra: mã lần chạy `R-S3-grade-20261119-170817-1dd43a` · ô nào còn đỏ (nguyên nhân × tầng): Không còn ô nào đỏ, đạt toàn bộ các bài kiểm tra visible: integrity ✅, criteria ✅, visible ✅, regression ✅, monitor ✅ (sáng đèn cả 2 metric mới).
+- Cổng vòng 1 (mốc prepared) đã đỡ được gì trước khi bàn biết sự cố, và bỏ sót gì: Đã đỡ được toàn bộ 900.000đ hoàn sai (về 0đ), 667.000đ hoàn thiếu (về 0đ), 0 lộ PII, giảm 25 lỗi hãng oan (từ 35 về 10); bỏ sót 10 lỗi phạt oan hãng MKD do hiện trường chưa kịp cập nhật nguyên nhân bão lũ vào tracking DB. Cổng vòng 2 đã bổ sung trần phạt 2 lỗi/ngày/hãng để triệt tiêu hoàn toàn 10 lỗi còn sót này.
+- Report ghi "được phép cân nhắc Tiếp tục" hay "không đủ căn cứ"? Quyết định của bàn có khớp không: Report ghi rõ: *"Được phép cân nhắc 'Tiếp tục'"*. Quyết định **Tiếp tục** của nhóm khớp 100% với đánh giá của hệ thống grader tự động.
+- Một thứ bộ thử hôm nay chưa đo, và nó ảnh hưởng quyết định ra sao: Chưa đo được phản ứng thực tế của tài xế và đối tác khi nhận thông báo phạt qua Zalo OA trong điều kiện bão lũ kéo dài trên 7 ngày (có thể chạm trần đình chỉ 5 lỗi nếu bão kéo dài nhiều ngày liên tiếp).
 
 **Ba dòng bắt buộc** (chép nguyên ba câu này sang `submission/submission.json`, mục `three_lines`)
 1. Một giả định về môi trường mà thiết kế của đội đang dựa vào, có thể sai ngoài thực tế: `Thiết kế giả định rằng mọi sự kiện thiên tai bất khả kháng (bão lũ) luôn được tài xế hoặc bưu cục cập nhật kịp thời và chính xác vào trường delay_cause trong tracking DB trước khi khách gửi khiếu nại.`

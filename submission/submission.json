@@ -1,12 +1,16 @@
 {
-  "team": "",
-  "members": [],
-  "incident": "",
-  "decision_v1": "",
-  "decision_v2": "",
+  "team": "K5-L3B-DAY10-NhomTVA-PoCtoPilotGate1",
+  "members": [
+    "VuThanh-2A202603930",
+    "DoVietAnh-2A202603973",
+    "VuHuyHieu-2A202603979"
+  ],
+  "incident": "S3",
+  "decision_v1": "Tiếp tục",
+  "decision_v2": "Tiếp tục",
   "three_lines": {
-    "environment_assumption": "",
-    "reduce_or_prevent": "",
-    "measure_in_pilot": ""
+    "environment_assumption": "Thiết kế giả định rằng mọi sự kiện thiên tai bất khả kháng (bão lũ) luôn được tài xế hoặc bưu cục cập nhật kịp thời và chính xác vào trường delay_cause trong tracking DB trước khi khách gửi khiếu nại.",
+    "reduce_or_prevent": "Cổng write_gate kiểm tra max_auto_strikes thực sự NGĂN được tác hại tích lũy quá trần đình chỉ hãng (chặn ở mức tối đa 2 lỗi/ngày), nhưng việc phân biệt bão lũ khi dữ liệu tracking bị gán nhầm CARRIER chỉ là GIẢM THIỂU thiệt hại chứ chưa ngăn tuyệt đối ở gốc dữ liệu.",
+    "measure_in_pilot": "Cần đo tỉ lệ khiếu nại tranh chấp thực tế từ các hãng vận chuyển (dispute_rate_per_carrier), độ trễ trung bình khi ghi nhận nguyên nhân trễ giữa hiện trường và hệ thống (delay_cause_lag_hours), và tỉ lệ các ca trễ do thời tiết bị gán nhầm mã lỗi."
   }
 }
